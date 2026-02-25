@@ -1,3 +1,4 @@
+
 package org.example;
 
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,7 @@ class PaiementdbTest {
         String Status=Paiementdb.testfacture(montantPaye,montantTotal);
         assertEquals("PENDING",Status);
     }
+
 
 
 }

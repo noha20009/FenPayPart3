@@ -1,3 +1,4 @@
+
 package org.example;
 
 import org.junit.jupiter.api.DisplayName;
@@ -148,4 +149,5 @@ class CommissionCalculatorTest {
                             montant, tauxAttendu));
         }
     }
+
 }
