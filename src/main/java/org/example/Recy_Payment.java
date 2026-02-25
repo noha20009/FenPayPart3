@@ -10,6 +10,7 @@ import java.time.LocalDate;
 
 public class Recy_Payment {
 
+
     public static void generateRecy(int paymentId,
                                     int factureID,
                                     LocalDate datePayment,
@@ -17,7 +18,9 @@ public class Recy_Payment {
                                     double amountPaid,
                                     double remainingAmount) {
 
-        String name = "recu_paiement_" + paymentId + ".pdf";
+        String name = exportFile.formatNomRecu(paymentId);
+
+
 
         try {
             PdfWriter writer = new PdfWriter(new FileOutputStream(name));

@@ -13,9 +13,9 @@ public class DBConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/finepay?useSSL=false",
+                    "jdbc:mysql://localhost:3306/finpay?useSSL=false",
                     "root",
-                    "nouha23"
+                    "1234"
             );
         } catch (Exception e) {
             throw new RuntimeException("Erreur connexion DB: " + e.getMessage(), e);
