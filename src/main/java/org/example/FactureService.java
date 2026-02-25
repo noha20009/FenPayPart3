@@ -1,15 +1,8 @@
 package org.example;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
 
 public class FactureService {
 
@@ -103,65 +96,51 @@ public class FactureService {
     }
 
     public Facture findById(int id) {
-        String sql = "SELECT id, date, montant, status FROM facture WHERE id = ?";
+
+        String sql = "SELECT f.id, f.date, f.montant, f.status, " +
+                "c.id as c_id, c.nom, c.telephone, c.email, " +
+                "p.id as p_id, p.nom as p_nom, p.type " +
+                "FROM facture f " +
+                "JOIN client c ON f.idClient = c.id " +
+                "JOIN prestataire p ON f.idPrestataire = p.id " +
+                "WHERE f.id = ?";
+
         try (Connection conn = DBConnection.createConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
+
+                Client client = new Client(
+                        rs.getInt("c_id"),
+                        rs.getString("nom"),
+                        rs.getString("telephone"),
+                        rs.getString("email")
+                );
+
+                Prestatairedb prestataire = new Prestatairedb(
+                        rs.getString("p_nom"),
+                        rs.getString("type")
+                );
+
                 return new Facture(
                         rs.getInt("id"),
                         rs.getDate("date").toLocalDate(),
                         rs.getDouble("montant"),
                         rs.getString("status"),
-                        null,
-                        null
+                        client,
+                        prestataire
                 );
             }
 
         } catch (SQLException e) {
             System.out.println("Erreur SQL : " + e.getMessage());
         }
+
         return null;
     }
 
-    // Simple PDF generation, no decorations, compatible with iText 5
-    public static void generateInvoice(Facture facture) {
-        String filePath = "Facture_" + facture.getId() + ".pdf";
-        Document document = new Document();
-        try {
-            PdfWriter.getInstance(document, new FileOutputStream(filePath));
-            document.open();
 
-            document.add(new Paragraph("FinPay"));
-            document.add(new Paragraph("Date : " + facture.getDate()));
-            document.add(new Paragraph("Montant Total : " + facture.getMontant()));
-            document.add(new Paragraph("Statut : " + facture.getStatus()));
-
-            if (facture.getClient() != null) {
-                document.add(new Paragraph("\nInformations Client"));
-                document.add(new Paragraph("Nom : " + facture.getClient().getNom()));
-                document.add(new Paragraph("Téléphone : " + facture.getClient().getTelephone()));
-                document.add(new Paragraph("Email : " + facture.getClient().getEmail()));
-            }
-
-            if (facture.getPrestataire() != null) {
-                document.add(new Paragraph("\nInformations Prestataire"));
-                document.add(new Paragraph("Nom : " + facture.getPrestataire().getNom()));
-                document.add(new Paragraph("Type : " + facture.getPrestataire().getType()));
-                document.add(new Paragraph("ID : " + facture.getPrestataire().getIdPrestat()));
-            }
-
-            document.close();
-            System.out.println("Facture PDF générée avec succès : " + filePath);
-
-        } catch (FileNotFoundException e) {
-            System.out.println("Erreur : fichier introuvable");
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Erreur lors de la génération du PDF");
-            e.printStackTrace();
-        }
-    }
 }
